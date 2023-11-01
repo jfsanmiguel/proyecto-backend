@@ -1,0 +1,18 @@
+<h1>Welcome to Fungstore</h1>
+<form id="form-products">
+<input id="input-title" type="text" placeholder="product title">
+<input id="input-description" type="text" placeholder="product description">
+<input id ="input-price"type="number" placeholder="product price">
+<input id="input-thumbnail"type="text" placeholder="product thumbnail">
+<input id="input-code"type="text" placeholder="product code">
+<input id = "input-stock"type="number" placeholder="product stock">
+<input id="input-category"type="text" placeholder="product category">
+<input type="submit" value="Add product">
+<div id="log-products"></div>
+</form>
+<form id="delete-form">
+    <input id ="input-delete" type="number" placeholder="product id to delete">
+    <input type="submit" value="Delete product">
+</form>
+<script src="/socket.io/socket.io.js"></script>
+<script src="js/index.js"></script>
