@@ -3,6 +3,7 @@ import CartsManager from "../../dao/managersFs/CartsManager.js";
 import PM from "../../dao/managersMongoDB/ProductsManager.js";
 import CM from "../../dao/managersMongoDB/CartManager.js";
 import { Router } from "express";
+import cartModel from "../../dao/models/cart.js";
 const productmanager=new ProductManager('Products.js');
 const cartsmanager=new CartsManager('Carts.js');
 const router=Router();
@@ -31,10 +32,11 @@ router.post('/carts',(req,res)=>{
  const{cid}= req.params;
      async function run(){
          //const cart= await cartsmanager.getProductsFromCart(parseInt(cid));
-         const cart= await CM.getProductsFromCart(cid)
+         const cart= await cartModel.findOne({_id:cid}).populate('products.product')
          if(!cart){
              res.status(404).json({ error: 'Cart not found' });
          }else{
+
              res.status(200).json(cart);
          }
      }
@@ -66,13 +68,26 @@ router.post('/carts',(req,res)=>{
  router.put('/carts/:cid', async (req, res) => {
     const {cid}=req.params;
     const {body}= req;
-    await CM.updateCartById(cid,body);
+    await CM.updatedProductsfromCartById(cid,body);
     res.status(204).end();
    });
-   router.delete('/carts/:cid', async (req, res) => {
+   router.delete('/carts/:cid', async (req,res)=>{
     const {cid}=req.params;
-    await CM.deleteCartById(cid);
+    await CM.deleteproductsfromCartById(cid);
     res.status(204).end();
    });
+   router.delete('/carts/:cid/products/:pid', async (req, res) => {
+    const {cid,pid}=req.params;
+    await CM.deleteProductFromCart(cid,pid);
+    res.status(204).end();
+   });
+   router.put('/carts/:cid/products/:pid', async (req, res) => {
+    const {cid}=req.params;
+    const {body}= req;
+    await CM.updateQuantityProductsfromCartById(cid,pid,body.quantity);
+    res.status(204).end();
+   });
+
+   
 
  export default router;

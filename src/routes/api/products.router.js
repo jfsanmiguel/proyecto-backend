@@ -2,20 +2,33 @@ import PM from "../../dao/managersMongoDB/ProductsManager.js";
 import ProductManager from "../../dao/managersFs/ProductManager.js";
 import { Router } from "express";
 const productmanager= new ProductManager('Products.js');
+import product from "../../dao/models/product.js";
 const router= Router();
+import { buildResponsePaginated } from "../../utils.js";
+import { URL_BASE } from "../../utils.js";
 
 router.get('/products', (req, res) => {
-    const { query } = req;
-    const { limit } = query;
+    
+    // sort linked with price
+    // search linked with category
     async function get() {
+        const {limit=10,page=1, sort, search }=req.query;
         //const products = await productmanager.getProducts();
-        const products= await PM.getProducts();
-        if (!limit) {
-            res.status(200).json(products);
-        } else {
-            const response = products.slice(0, parseInt(limit));
-            res.status(200).json(response);
+        //const products= await PM.getProducts();
+        const criteria={};
+        const options={limit,page};
+        if(sort){
+            options.sort= {price:sort};
         }
+        if(search){
+            criteria.category=search;
+        }
+        const result= await product.paginate(criteria,options);
+        res.status(200).json(buildResponsePaginated({...result,sort,search}));
+
+        
+        
+            
     }
     get();
 
@@ -122,5 +135,9 @@ router.delete('/products/:productId', (req, res) => {
     }
     run();
 });
+
+
+
+
 
 export default router;

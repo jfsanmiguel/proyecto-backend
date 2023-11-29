@@ -2,7 +2,7 @@
 (function(){
     const socket = io();
     let email='';
-    document.getElementById('form-message').addEventListener('submit',(event)=>{
+    document.getElementById('form-message').addEventListener('submit',async (event)=>{
         event.preventDefault();
         const input= document.getElementById('input-message');
         const newMessage={
@@ -12,6 +12,7 @@
         input.value='';
         input.focus();
         socket.emit('new-message',newMessage);
+        
     }
     )
     socket.on('update-messages',(messages)=>{

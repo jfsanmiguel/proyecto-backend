@@ -1,4 +1,5 @@
 import CartModel from '../models/cart.js'
+import ProductModel from "../models/product.js";
 
 export default class CartsManager{
     static getCarts(){
@@ -19,9 +20,38 @@ export default class CartsManager{
         }
         
     }
-    static async deleteCartById(cid){
-        await CartModel.deleteOne({_id:cid});
-        console.log('cart deleted successfully');
+    static async deleteproductsfromCartById(cid){
+        const cart= await CartModel.findById(cid);
+        if(!cart){
+            console.log("the cart was not found")
+        }else{
+            deletedProducts=[];
+            await CartModel.updateOne({_id:cid},{products:deletedProducts});
+            console.log("products deleted");
+        }
+    }
+    static async updatedProductsfromCartById(cid,data){
+        const cart= await CartModel.findById(cid);
+        if(!cart){
+            console.log("the cart was not found")
+        }else{
+            cart.products=data;
+            const updatedProducts=cart.products;
+            await CartModel.updateOne({_id:cid},{products:updatedProducts});
+            console.log("products updated");
+        }
+    }
+    static async updateQuantityProductsfromCartById(cid, pid,quantity){
+        const cart= await CartModel.findById(cid);
+        if(!cart){
+            console.log("the cart was not found")
+        }else{
+            const product= cart.products.find(prod=>prod.id===pid);
+            product.quantity=quantity;
+            
+                await CartModel.updateOne({_id:cid},product);
+            
+        }
     }
     static async getProductsFromCart(cid){
         const cartId= await CartModel.findById(cid)
@@ -37,23 +67,37 @@ export default class CartsManager{
         if(!cart){
             console.log("the cart was not found")
         }else{
-            const productExists= await cart.products.find(prod=>prod.id===pid);
+            const productExists= cart.products.find(prod=>prod.product===pid);
             if(!productExists){
                 const newProduct = {
-                    id: pid,
+                    product: pid,
                     quantity: quantity,
                 }
-                cart.products.push(newProduct)
-                const updatedProducts=cart.products;
-                await CartModel.updateOne({_id:cid},{products:updatedProducts});
+                cart.products.push(newProduct);
+                await CartModel.updateOne({_id:cid},cart);
                 console.log('product added successfully');
             }else{
                 productExists.quantity=productExists.quantity+quantity;
-                const updatedProducts=cart.products;
-                await CartModel.updateOne({_id:cid},{products:updatedProducts});
+                
+                await CartModel.updateOne({_id:cid},productExists);
 
             }
         }
        
     }
+    static async deleteProductFromCart(cid,pid){
+        const cart= await CartModel.findById(cid);
+        if(!cart){
+            console.log("the cart was not found")
+        }else{
+            const productToDelete= cart.products.findIndex(prod=>prod.id===pid);
+            if(productToDelete!==-1){
+                cart.products.splice(productToDelete,1);
+            }else{
+                console.log('Product not found')
+            }
+
+    }
+}
+
 }
