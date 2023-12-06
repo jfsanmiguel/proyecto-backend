@@ -46,8 +46,8 @@ export default class CartsManager{
         if(!cart){
             console.log("the cart was not found")
         }else{
-            const product= cart.products.find(prod=>prod.id===pid);
-            product.quantity=quantity;
+            const productIndex= cart.products.findIndex(prod => prod.product.toString() === pid);
+            cart.products[productIndex].quantity=quantity;
             
                 await CartModel.updateOne({_id:cid},product);
             

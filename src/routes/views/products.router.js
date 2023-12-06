@@ -16,7 +16,7 @@ router.get('/products', async (req, res) => {
             criteria.category=search;
         }
         const result= await product.paginate(criteria,options);
-        const data=buildResponsePaginated({...result,sort,search});
+        const data=buildResponsePaginated({...result,search});
         res.render('pagination',{title:'Fungstore',...data});
 });
 
