@@ -22,11 +22,11 @@ router.get('/chat',(req,res)=>{
 })
 
 router.get('/profile', async (req, res) => {
-    if(!req.session.user){
+    if(!req.user){
         return res.redirect('/login')
     }else{
         const products= await PM.getProducts();
-        res.render('profile', { products: products.map(pro=>pro.toJSON()), title: 'Welcome back',user:req.session.user })
+        res.render('profile', { products: products.map(pro=>pro.toJSON()), title: 'Welcome back',user:req.user.toJSON() })
     }
    
 });
@@ -36,6 +36,11 @@ router.get('/login', async (req, res) => {
 router.get('/register', async (req, res) => {
     res.render('register', {  title: 'Register' })
 });
+
+router.get('/password-recover',(req,res)=>{
+    res.render('recover', {title: 'Recover password'});
+
+})
 
 
 export default router

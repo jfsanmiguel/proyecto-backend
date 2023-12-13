@@ -1,10 +1,22 @@
 import path from 'path';
+import bcrypt from 'bcrypt';
 import url from 'url';
 
 const __filename= url.fileURLToPath(import.meta.url);
 export const __dirname=path.dirname(__filename);
 export const URL_BASE='http://localhost:8080'
 export const URI= 'mongodb+srv://jfelipesanmiguel:jQDlAZ1jURl9fTsA@cluster0.9uvwrb0.mongodb.net/'
+
+export const createHash = (password) => {
+    const result = bcrypt.hashSync(password, bcrypt.genSaltSync(13));
+    return result;
+}
+
+export const isValidPassword= (password,user)=>{
+    const result= bcrypt.compareSync(password,user.password);
+    return result;
+}
+
 
 export const buildResponsePaginated= (data)=>{
     return {
