@@ -1,5 +1,7 @@
 import { Router } from "express";
 import PM from "../../dao/managersMongoDB/ProductsManager.js";
+import cartModel from "../../dao/models/cart.js";
+
 
 const router = Router();
 
@@ -28,6 +30,28 @@ router.get('/profile', async (req, res) => {
         const products= await PM.getProducts();
         res.render('profile', { products: products.map(pro=>pro.toJSON()), title: 'Welcome back',user:req.user.toJSON() })
     }
+
+    
+    
+   
+});
+router.get('/current', async (req, res) => {
+    if(!req.user){
+        return res.redirect('/login')
+    }else{
+        const user= req.user;
+        const cart= await cartModel.findOne({_id:user.cart}).populate('products.product');
+        if(!cart){
+        const products= await PM.getProducts(); 
+        res.render('profile', { products: products.map(pro=>pro.toJSON()), title: 'Welcome back',user:req.user.toJSON() })
+        }else{
+        res.render('current', { products: cart.products.map(pro=>pro.toJSON()), title: 'Your Cart',user:user.toJSON(),quantity:cart.quantity})
+        }
+        
+    }
+
+    
+    
    
 });
 router.get('/login', async (req, res) => {

@@ -75,6 +75,13 @@ router.get('/session/profile', (req, res) => {
     res.status(200).json(req.session.user)
 });
 
+router.get('/session/current', (req, res) => {
+    if (!req.session.user) {
+        return res.status(401).json({ message: 'you are not logged in' })
+    }
+    res.status(200).json(req.session.user)
+});
+
 router.get('/session/logout', (req, res) => {
     req.session.destroy((error) => {
         if (error) {
@@ -106,5 +113,6 @@ router.get('/session/github', passport.authenticate('github', { scope: ['user:em
 router.get('/session/github/callback', passport.authenticate('github', { failureRedirect: '/login' }), (req, res) => {
     res.redirect('/profile');
 });
+
 
 export default router
