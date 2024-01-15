@@ -1,6 +1,7 @@
 import { Router } from "express";
 import passport from "passport";
 import userModel from '../../dao/models/user.js';
+import userController from "../../controllers/users.controller.js";
 import { createHash, isValidPassword } from "../../utils.js";
 
 //http://localhost:8080/api/session/github/callback
@@ -70,14 +71,14 @@ router.post('/session/login', passport.authenticate('login', { failureRedirect: 
 });
 router.get('/session/profile', (req, res) => {
     if (!req.session.user) {
-        return res.status(401).json({ message: 'you are not logged in' })
+        res.status(error.statusCode || 500).json({status:'error',message})
     }
     res.status(200).json(req.session.user)
 });
 
 router.get('/session/current', (req, res) => {
     if (!req.session.user) {
-        return res.status(401).json({ message: 'you are not logged in' })
+        res.status(error.statusCode || 500).json({status:'error',message})
     }
     res.status(200).json(req.session.user)
 });
@@ -98,13 +99,13 @@ router.post('/session/password-recover', async (req, res) => {
         //return res.status(400).json({ message: 'please fill all entries'})
         return res.render('error', { title: 'log error', messageError: 'please fill all entries' });
     }
-    const user = await userModel.findOne({ email });
+    const user = await userController.getAll({email})
     if (!user) {
         //return res.status(401).json({ message: 'invalid email or password'})
         return res.render('error', { title: 'log error', messageError: 'invalid email or password' });
     }
     user.password = createHash(password);
-    await userModel.updateOne({ email }, user);
+    await userController.updatebyId(user._id,user);
     res.redirect('/login');
 
 })

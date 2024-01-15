@@ -1,11 +1,7 @@
-import ProductManager from "../../dao/managersFs/ProductManager.js";
-import CartsManager from "../../dao/managersFs/CartsManager.js";
-import PM from "../../dao/managersMongoDB/ProductsManager.js";
-import CM from "../../dao/managersMongoDB/CartManager.js";
+import productController from "../../controllers/products.controller.js";
+import cartController from "../../controllers/carts.controller.js";
 import { Router } from "express";
 import cartModel from "../../dao/models/cart.js";
-const productmanager=new ProductManager('Products.js');
-const cartsmanager=new CartsManager('Carts.js');
 const router=Router();
 
 router.post('/carts',(req,res)=>{
@@ -22,7 +18,7 @@ router.post('/carts',(req,res)=>{
  });
  router.get('/carts',(req,res)=>{
     async function get(){
-      const carts=  await CM.getCarts();
+      const carts=  await cartController.getCarts();
         res.status(200).json(carts);
     }
     get()
@@ -32,9 +28,9 @@ router.post('/carts',(req,res)=>{
  const{cid}= req.params;
      async function run(){
          //const cart= await cartsmanager.getProductsFromCart(parseInt(cid));
-         const cart= await cartModel.findOne({_id:cid}).populate('products.product')
+         const cart= cartController.populateProducts(cid);
          if(!cart){
-             res.status(404).json({ error: 'Cart not found' });
+            res.status(error.statusCode || 500).json({status:'error',message})
          }else{
 
              res.status(200).json(cart);
@@ -48,16 +44,16 @@ router.post('/carts',(req,res)=>{
      async function buy(){
          //const product= await productmanager.getProductById(parseInt(pid));
          //const cart= await cartsmanager.getProductsFromCart(parseInt(cid));
-         const product=await PM.getProductById(pid);
-         const cart= await CM.getProductsFromCart(cid);
+         const product=await productController.getProductById(pid);
+         const cart= await cartController.getProductsFromCart(cid);
          if(!product){
-             res.status(404).json({ error: 'Product not found' });
+            res.status(error.statusCode || 500).json({status:'error',message})
          }else{
              if(!cart){
-                 res.status(404).json({ error: 'Cart not found' });
+                res.status(error.statusCode || 500).json({status:'error',message})
              }else{
                  //await cartsmanager.addProductsToCart(parseInt(cid), parseInt(pid) ,body.quantity);
-                 await CM.addProductsToCart(cid,pid,body.quantity);
+                 await cartController.addProductsToCart(cid,pid,body.quantity);
                  res.status(201).json(cart);
              }
              
@@ -68,23 +64,23 @@ router.post('/carts',(req,res)=>{
  router.put('/carts/:cid', async (req, res) => {
     const {cid}=req.params;
     const {body}= req;
-    await CM.updatedProductsfromCartById(cid,body);
+    await cartController.updatedProductsfromCartById(cid,body);
     res.status(204).end();
    });
    router.delete('/carts/:cid', async (req,res)=>{
     const {cid}=req.params;
-    await CM.deleteproductsfromCartById(cid);
+    await cartController.deleteproductsfromCartById(cid);
     res.status(204).end();
    });
    router.delete('/carts/:cid/products/:pid', async (req, res) => {
     const {cid,pid}=req.params;
-    await CM.deleteProductFromCart(cid,pid);
+    await cartController.deleteProductFromCart(cid,pid);
     res.status(204).end();
    });
    router.put('/carts/:cid/products/:pid', async (req, res) => {
     const {cid}=req.params;
     const {body}= req;
-    await CM.updateQuantityProductsfromCartById(cid,pid,body.quantity);
+    await cartController.updateQuantityProductsfromCartById(cid,pid,body.quantity);
     res.status(204).end();
    });
 

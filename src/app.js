@@ -3,7 +3,7 @@ import path from 'path';
 import handlebars from 'express-handlebars';
 import productRouter from './routes/api/products.router.js'
 import cartRouter from './routes/api/carts.router.js'
-import {__dirname} from './utils.js';
+import {Exception, __dirname} from './utils.js';
 import appRouter from './routes/views/app.router.js';
 import indexRouter from './routes/views/index.router.js';
 import productR from './routes/views/products.router.js';
@@ -15,8 +15,12 @@ import MongoStore from 'connect-mongo';
 import { URI } from './utils.js';
 import sessionRouter from './routes/api/session.router.js';
 import passport from 'passport';
+import config from './config/config.js';
+import apiRouter from './routes/api/app.router.js'
+import cors from 'cors';
 
-const SESSION_SECRET='[sPa4j8M646['
+const SESSION_SECRET=config.session;
+const whiteList= process.env.ORIGINS_ALLOWED.split(',');
 const app=express();
 //const fileStorage = FileStorage(session);
 
@@ -39,17 +43,27 @@ app.set('view engine','handlebars');
 initPassport();
 app.use(passport.initialize());
 app.use(passport.session());
+app.use(cors({
+    origin: (origin,callback)=>{
+        if(whiteList.includes(origin)){
+            callback(null,true);
+        }else{
+            callback(new Error('not allowed by CORS'))
+        }
+
+    }
+}));
 
 
 app.use('/', indexRouter,productR, cartR);
 app.use((error,req,res,next)=>{
-    const message = `An unexpected error has ocurred: ${error.message}`;
+    const message = error instanceof Exception ? error.message:`An unexpected error has ocurred`;
     console.error(message);
     res.status(500).json({message});
 
 });
 
 
-app.use('/api',productRouter,cartRouter,sessionRouter);
+app.use('/api',productRouter,cartRouter,sessionRouter,apiRouter);
 
 export default app;

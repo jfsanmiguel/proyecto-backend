@@ -1,31 +1,37 @@
 import PM from "../../dao/managersMongoDB/ProductsManager.js";
-import ProductManager from "../../dao/managersFs/ProductManager.js";
+import productController from "../../controllers/products.controller.js";
 import { Router } from "express";
-const productmanager= new ProductManager('Products.js');
+
 import product from "../../dao/models/product.js";
 const router= Router();
 import { buildResponsePaginated } from "../../utils.js";
 import { URL_BASE } from "../../utils.js";
 
-router.get('/products', (req, res) => {
+router.get('/products', (req, res,next) => {
     
     // sort linked with price
     // search linked with category
     async function get() {
-        const {limit=10,page=1, sort, search }=req.query;
-        //const products = await productmanager.getProducts();
-        //const products= await PM.getProducts();
-        const criteria={};
-        const options={limit,page};
-        if(sort){
-            options.sort= {price:sort};
+        try {
+            const {limit=10,page=1, sort, search }=req.query;
+            //const products = await productmanager.getProducts();
+            //const products= await PM.getProducts();
+            const criteria={};
+            const options={limit,page};
+            if(sort){
+                options.sort= {price:sort};
+            }
+            if(search){
+                criteria.category=search;
+            }
+            const result= await product.paginate(criteria,options);
+            res.status(200).json(buildResponsePaginated({...result,sort,search}));
+    
+            
+        } catch (error) {
+            next(error);
         }
-        if(search){
-            criteria.category=search;
-        }
-        const result= await product.paginate(criteria,options);
-        res.status(200).json(buildResponsePaginated({...result,sort,search}));
-
+       
         
         
             
@@ -34,14 +40,21 @@ router.get('/products', (req, res) => {
 
 });
 
-router.post('/products', (req, res) => {
+router.post('/products', (req, res,next) => {
+   
     const { body } = req;
-    async function add() {
-        //await productmanager.addProduct(body.title, body.description, body.price, body.thumbnail, body.code, body.stock, body.category);
-        //const products = await productmanager.getProducts();
-        const products= await PM.addProduct(body);
-        res.status(201).json(products);
+    try {
+        async function add() {
+            //await productmanager.addProduct(body.title, body.description, body.price, body.thumbnail, body.code, body.stock, body.category);
+            //const products = await productmanager.getProducts();
+            const products= await productController.addProduct(body);
+            res.status(201).json(products);
+        }
+        
+    } catch (error) {
+        next(error)
     }
+   
     add();
 })
 
@@ -49,9 +62,9 @@ router.get('/products/:productId', (req, res) => {
     const { productId } = req.params;
     async function run() {
         //const product = await productmanager.getProductById(parseInt(productId));
-        const product= await PM.getProductById(productId);
+        const product= await productController.getProductById(productId);
         if (!product) {
-            res.status(404).json({ error: 'Product not found' })
+           res.status(error.statusCode || 500).json({status:'error',message})
         } else {
             res.status(200).json(product);
         }
@@ -108,11 +121,11 @@ router.put('/products/:productId', (req, res) => {
         //     }
         //     res.status(200).json(product);     
         // }
-        const product= await PM.getProductById(productId)
+        const product= await productController.getProductById(productId)
         if (!product) {
-            res.status(404).json({ error: 'Product not found' })
+            res.status(error.statusCode || 500).json({status:'error',message})
         } else {
-            await PM.updateProductById(productId,body);
+            await productController.updateProductById(productId,body);
             res.status(204).end();
         }
         
@@ -123,13 +136,13 @@ router.delete('/products/:productId', (req, res) => {
     const { productId } = req.params;
     async function run() {
         //const product = await productmanager.getProductById(parseInt(productId));
-        const product= await PM.getProductById(productId)
+        const product= await productController.getProductById(productId)
         if (!product) {
-            res.status(404).json({ error: 'Product not found' })
+            res.status(error.statusCode || 500).json({status:'error',message})
         } else {
             //await productmanager.deleteProduct(parseInt(productId));
             //res.status(200).json({message:'the following product was deleted',productId});
-            await PM.deleteProductById(productId);
+            await productController.deleteProductById(productId);
             res.status(204).end();
         }
     }

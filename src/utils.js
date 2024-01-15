@@ -47,3 +47,34 @@ export const authMiddleware= roles=>(req,res,next)=>{
     next();
 
 };
+
+
+export class Exception extends Error{
+    constructor(message,statusCode){
+        super(message);
+        this.statusCode=statusCode;
+    }
+
+   
+}
+export class BadRequestException extends Exception{
+     constructor(message){
+        super(message,400);
+     }   
+}
+
+export class NotFound extends Exception{
+    constructor(message){
+       super(message,404);
+    }   
+}
+export class Unauthorized extends Exception{
+    constructor(message){
+       super(message,401);
+    }   
+}
+export class Forbidden extends Exception{
+    constructor(message){
+       super(message,403);
+    }   
+}

@@ -1,10 +1,13 @@
+import config from "../config/config.js";
 import mongoose from "mongoose";
-const URI= 'mongodb+srv://jfelipesanmiguel:jQDlAZ1jURl9fTsA@cluster0.9uvwrb0.mongodb.net/'
+
+const URI= config.mongodbURI;
 export const init= async ()=>{
     try{
         await mongoose.connect(URI)
         console.log('Database connected succesfully')
     }catch(error){
         console.error('An unexpected error ocurred')
+        console.log(URI)
     }
 }
