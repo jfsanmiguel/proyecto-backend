@@ -2,10 +2,10 @@ import CartsManager from "../dao/managersMongoDB/CartManager.js";
 
 export default class CartsService{
     static getAll(filter = {}){
-        return CartsManager.getAll();
+        return CartsManager.getCarts(filter);
     }
     static create(data){
-        return CartsManager.createUser(data);
+        return CartsManager.createCart(data);
     }
 
     static async getById(id){

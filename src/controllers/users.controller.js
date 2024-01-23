@@ -1,8 +1,9 @@
 import userModel from "../dao/models/user.js";
 import UserService from "../services/user.service.js";
 export default class userController {
-    static getAll(filter={}) {
-        return UserService.getAll(filter);
+    static async getAll(filters={}, opts={}) {
+        const users= UserService.getAll(filters,opts);
+        return users;
     }
     static getOne(filter={}) {
         return UserService.getOne(filter);

@@ -20,7 +20,7 @@ import apiRouter from './routes/api/app.router.js'
 import cors from 'cors';
 
 const SESSION_SECRET=config.session;
-const whiteList= process.env.ORIGINS_ALLOWED.split(',');
+// const whiteList= process.env.ORIGINS_ALLOWED.split(',');
 const app=express();
 //const fileStorage = FileStorage(session);
 
@@ -43,26 +43,26 @@ app.set('view engine','handlebars');
 initPassport();
 app.use(passport.initialize());
 app.use(passport.session());
-app.use(cors({
-    origin: (origin,callback)=>{
-        if(whiteList.includes(origin)){
-            callback(null,true);
-        }else{
-            callback(new Error('not allowed by CORS'))
-        }
+// app.use(cors({
+//     origin: (origin,callback)=>{
+//         if(whiteList.includes(origin)){
+//             callback(null,true);
+//         }else{
+//             callback(new Error('not allowed by CORS'))
+//         }
 
-    }
-}));
+//     }
+// }));
 
 
 app.use('/', indexRouter,productR, cartR);
+
 app.use((error,req,res,next)=>{
     const message = error instanceof Exception ? error.message:`An unexpected error has ocurred`;
     console.error(message);
     res.status(500).json({message});
 
 });
-
 
 app.use('/api',productRouter,cartRouter,sessionRouter,apiRouter);
 

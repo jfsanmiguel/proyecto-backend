@@ -9,8 +9,8 @@ router.post('/carts',(req,res)=>{
         const { body } = req;
      //await cartsmanager.createCart();
      //const carts=await cartsmanager.getCarts()
-     await CM.createCart(body)
-     const carts= await CM.getCarts();
+     await cartController.createCart();
+     const carts= await cartController.getCarts();
      res.status(201).json(carts);
     }
      create();

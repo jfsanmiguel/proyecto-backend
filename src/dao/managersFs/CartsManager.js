@@ -5,9 +5,10 @@ class CartsManager {
         this.path=path
     }
     
-    async createCart(){
+    async createCart(customer){
         const carts= await getJsonFromFile(this.path);
         const newCart={
+            customer:customer,
             id: Date.now()+13,
             products: [],
         
@@ -52,7 +53,80 @@ class CartsManager {
         }
        
     }
+    static async updateCartById(cid,change,data){
+        const carts= await getJsonFromFile(this.path)
+        const cart=carts.find(idc=>idc.id===cid);
+        if(!cart){
+        console.log('the cart was not found')
+        }else{
+            if (change === 'customer') {
+                cart.customer = data;
+                await saveJsonInFile(this.path, carts);
+                console.log('cart updated succesfully')
+            } else if (change === 'products') {
+                cart.products = cart.products.push(data);
+                await saveJsonInFile(this.path, carts);
+                console.log('cart updated succesfully')
+            } else {
+                console.log("please enter a valid parameter to update")
+            }
+            
+        }
+        
+    }
+    static async updatedProductsfromCartById(cid,data){
+        const carts= await getJsonFromFile(this.path)
+        const cart=carts.find(idc=>idc.id===cid);
+        if(!cart){
+            console.log("the cart was not found")
+        }else{
+            cart.products=data;
+            await saveJsonInFile(this.path, carts);
+            console.log("products updated");
+        }
+    }
 
+    static async updateQuantityProductsfromCartById(cid, pid,quantity){
+        const carts= await getJsonFromFile(this.path)
+        const cart=carts.find(idc=>idc.id===cid);
+        if(!cart){
+            console.log("the cart was not found")
+        }else{
+            const productIndex= cart.products.findIndex(prod => prod.product.toString() === pid);
+            cart.products[productIndex].quantity=quantity;
+            await saveJsonInFile(this.path, carts);
+            
+        }
+    }
+    static async deleteProductFromCart(cid,pid){
+        const carts= await getJsonFromFile(this.path)
+        const cart=carts.find(idc=>idc.id===cid);
+        if(!cart){
+            console.log("the cart was not found")
+        }else{
+            const productToDelete= cart.products.findIndex(prod=>prod.id===pid);
+            if(productToDelete!==-1){
+                cart.products.splice(productToDelete,1);
+                await saveJsonInFile(this.path, carts);
+            }else{
+                console.log('Product not found')
+            }
+
+    }
+}
+static async deleteproductsfromCartById(cid){
+    const carts= await getJsonFromFile(this.path)
+    const cart=carts.find(idc=>idc.id===cid);
+    if(!cart){
+        console.log("the cart was not found")
+    }else{
+        cart.products=[];
+        await saveJsonInFile(this.path, carts);
+        console.log("products deleted");
+    }
+}
+
+    
 
 }
 const getJsonFromFile = async (path) => {

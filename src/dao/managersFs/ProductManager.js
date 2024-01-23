@@ -51,7 +51,7 @@ class ProductManager {
         }
 
     }
-    async updateProduct(id, change, value) {
+    async updateProductById(id, change, value) {
         const products = await getJsonFromFile(this.path);
         let product = products.find(pro => pro.id === id);
         if (product) {
@@ -92,7 +92,7 @@ class ProductManager {
         }
     }
 
-    async deleteProduct(id) {
+    async deleteProductById(id) {
         const products = await getJsonFromFile(this.path);
         let product = products.find(pro => pro.id === id);
         if (!product || !products) {

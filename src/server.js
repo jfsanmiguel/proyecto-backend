@@ -5,9 +5,9 @@ import {initSocket} from './socket.js';
 import {init} from './db/mongodb.js';
 import MongoSingleton from './db/MongoSingleton.js';
 
-
-MongoSingleton.getInstance();
-
+if(config.persistence==='mongodb'){
+    MongoSingleton.getInstance();
+}
 
 const httpServer= http.createServer(app);
 initSocket(httpServer);

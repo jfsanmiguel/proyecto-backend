@@ -50,12 +50,13 @@ router.post('/products', (req, res,next) => {
             const products= await productController.addProduct(body);
             res.status(201).json(products);
         }
+        add();
         
     } catch (error) {
         next(error)
     }
    
-    add();
+    
 })
 
 router.get('/products/:productId', (req, res) => {
