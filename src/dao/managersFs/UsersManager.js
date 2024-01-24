@@ -12,7 +12,7 @@ class userManager {
     }
     async getOne(uid) {
         const users = await getJsonFromFile(this.path);
-        let userId = users.find(ide => ide.id === mid);
+        let userId = users.find(ide => ide.id === uid);
         if (!userId) {
             console.log("Not found");
             return

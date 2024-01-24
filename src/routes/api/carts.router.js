@@ -1,5 +1,6 @@
 import productController from "../../controllers/products.controller.js";
 import cartController from "../../controllers/carts.controller.js";
+import TicketController from "../../controllers/ticket.controller.js";
 import { Router } from "express";
 import cartModel from "../../dao/models/cart.js";
 const router=Router();
@@ -83,6 +84,10 @@ router.post('/carts',(req,res)=>{
     await cartController.updateQuantityProductsfromCartById(cid,pid,body.quantity);
     res.status(204).end();
    });
+   router.post('/carts/:cid/purchase', async (req,res)=>{
+    const {cid}=req.params;
+    await TicketController.createTicket(cid)
+   })
 
    
 

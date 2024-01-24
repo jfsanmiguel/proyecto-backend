@@ -10,5 +10,5 @@ export default {
     clientID: process.env.clientID || '',
     clientSecret: process.env.clientSecret || '',
     callbackURL: process.env.callbackURL || '',
-    persistence: process.env.PERSISTENCE || 'memory',
+    persistence: process.env.PERSISTENCE || 'mongodb',
 }

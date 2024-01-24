@@ -8,6 +8,12 @@ const userSchema= new Schema({
     age:{type:Number,required:false},
     cart:{type:mongoose.Schema.Types.ObjectId, ref:'carts'},
     role:{type:String, required: false, default:'user', enum:['user','operator','admin'] },
+    tickets: [
+        {
+            type:mongoose.SchemaTypes.ObjectId,
+            ref:'Ticket'
+        }
+    ]
 },{timestamps:true})
 
 
