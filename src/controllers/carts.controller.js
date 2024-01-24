@@ -1,4 +1,5 @@
 import CartModel from "../dao/models/cart.js";
+import ProductModel from "../dao/models/product.js";
 export default class cartController {
     static getCarts(){
         return CartModel.find({});
@@ -57,6 +58,22 @@ export default class cartController {
             throw new NotFound(" The cart was not found")
         }else{
             return cartId.products;
+        }
+    }
+    static async compareQuantityandStock(cid,pid){
+        const cart= await CartModel.findById(cid)
+        const product= await ProductModel.findById(pid);
+        if(!cart || !product){
+            throw new NotFound(" The cart or product was not found")
+        }else{
+            const productIndex= cart.products.findIndex(prod => prod.product.toString() === pid);
+            const diference= product.stock-cart.products[productIndex].quantity;
+            if(diference>=0){
+                return true
+            }else{
+                return false
+            }
+            
         }
     }
 
