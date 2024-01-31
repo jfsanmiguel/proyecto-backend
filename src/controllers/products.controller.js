@@ -48,4 +48,16 @@ export default class productController {
             console.log('product deleted successfully');
         }
     }
+    static async reduceProductStock(pid,purchase){
+        let product = await ProductModel.findById(pid);
+        if (!product) {
+            console.log(" the product with the code " + pid + " does not exist")
+            return
+        } else {
+            product.stock=product.stock-purchase;
+           await ProductModel.updateOne({_id:pid},product);
+           console.log('product updated succesfully');
+        }
+    }
+    
 }

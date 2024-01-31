@@ -9,13 +9,13 @@ export default class CartsService{
     }
 
     static async getById(id){
-        const result = CartsManager.getAll({_id:id});
-        return result[0];
+        const result = CartsManager.getCarts({_id:id});
+        return result;
     }
     static async updateById(id,data){
-      return CartsManager.updateUserById(id,data);
+      return CartsManager.updateCartById(id,data);
     }
     static async deleteById(id){
-        return CartsManager.deleteById(id);
+        return CartsManager.deleteproductsfromCartById(id);
     }
 }

@@ -1,4 +1,7 @@
 import mongoose, {Schema} from "mongoose";
+const TicketCollection= new mongoose.Schema({
+    ticket: {type: mongoose.Schema.Types.ObjectId, ref:'tickets'}
+},{_id:false});
 
 const userSchema= new Schema({
     first_Name: {type:String,required:true},
@@ -8,12 +11,7 @@ const userSchema= new Schema({
     age:{type:Number,required:false},
     cart:{type:mongoose.Schema.Types.ObjectId, ref:'carts'},
     role:{type:String, required: false, default:'user', enum:['user','operator','admin'] },
-    tickets: [
-        {
-            type:mongoose.SchemaTypes.ObjectId,
-            ref:'Ticket'
-        }
-    ]
+    tickets:{type: [TicketCollection],default:[]}
 },{timestamps:true})
 
 

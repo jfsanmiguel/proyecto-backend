@@ -6,6 +6,9 @@ import product from "../../dao/models/product.js";
 const router= Router();
 import { buildResponsePaginated } from "../../utils.js";
 import { URL_BASE } from "../../utils.js";
+import { generateProduct } from "../../utils.js";
+import passport from "passport";
+import { authMiddleware } from "../../utils.js";
 
 router.get('/products', (req, res,next) => {
     
@@ -40,7 +43,7 @@ router.get('/products', (req, res,next) => {
 
 });
 
-router.post('/products', (req, res,next) => {
+router.post('/products',authMiddleware(['admin']),(req, res,next) => {
    
     const { body } = req;
     try {
@@ -72,7 +75,7 @@ router.get('/products/:productId', (req, res) => {
     }
     run();
 });
-router.put('/products/:productId', (req, res) => {
+router.put('/products/:productId',authMiddleware(['admin']), (req, res) => {
     const { productId } = req.params;
     const { body } = req;
     async function update() {
@@ -133,7 +136,7 @@ router.put('/products/:productId', (req, res) => {
     }
     update();
 });
-router.delete('/products/:productId', (req, res) => {
+router.delete('/products/:productId',authMiddleware(['admin']), (req, res) => {
     const { productId } = req.params;
     async function run() {
         //const product = await productmanager.getProductById(parseInt(productId));
@@ -149,6 +152,15 @@ router.delete('/products/:productId', (req, res) => {
     }
     run();
 });
+router.post('/mockingproducts',async (req,res)=>{
+    for(let i=0; i<100;i++){
+        await productController.addProduct(generateProduct());
+    }
+    const products= await productController.getProducts();
+    res.status(201).json(products);
+
+
+})
 
 
 

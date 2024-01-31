@@ -28,7 +28,7 @@ export default class ProductsManager{
     static async updateProductById(pid,data){
         let product = await ProductModel.findById(pid);
         if (!product) {
-            console.log(" the product with the code " + data.code + " does not exist")
+            console.log(" the product with the code " + pid + " does not exist")
             return
         } else if (!data.title || !data.description || !data.price || !data.thumbnail || !data.stock || !data.category) {
             console.log("Please fill all entries");
@@ -40,7 +40,7 @@ export default class ProductsManager{
     static async deleteProductById(pid){
         let product = await ProductModel.findById(pid);
         if (!product) {
-            console.log(" the product with the code " + data.code + " does not exist")
+            console.log(" the product with the code " + pid + " does not exist")
             return
         }else{
             await ProductModel.deleteOne({_id:pid});

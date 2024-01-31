@@ -25,4 +25,21 @@ export default class userController {
     static deleteById(id){
         return UserService.deleteById(id);
     }
+    static async addTicketToUser(uid,tid){
+        const user= await userModel.findById(uid);
+        if(!user){
+            throw new NotFound(" The user was not found")
+        }else{
+            const ticketExists= user.tickets.find(prod=>prod.ticket===tid);
+            if(!ticketExists){
+                const newTicket = {
+                    ticket:tid
+                }
+                user.tickets.push(newTicket);
+                await userModel.updateOne({_id:uid},user);
+                console.log('ticket added successfully');
+            }
+        }
+       
+    }
 }

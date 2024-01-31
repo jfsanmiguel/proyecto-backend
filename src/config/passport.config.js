@@ -5,6 +5,8 @@ import { Strategy as GithubStrategy } from 'passport-github2';
 import userModel from "../dao/models/user.js";
 import { createHash, isValidPassword } from "../utils.js";
 import cartModel from "../dao/models/cart.js";
+import CartsManager from "../dao/managersFs/CartsManager.js";
+import {faker} from '@faker-js/faker';
 
 
 export const init = () => {
@@ -12,6 +14,7 @@ export const init = () => {
         usernameField: 'email',
         passReqToCallback: true,
     };
+    const id=faker.database.mongodbObjectId();
     passport.use('register', new LocalStrategy(registerOpts, async (req, email, password, done) => {
         const {
             body: {
@@ -31,7 +34,7 @@ export const init = () => {
             return done(new Error('An user with this email already exists'));
         }
         const newCart = await cartModel.create({
-            customer: first_Name,
+            customer: email,
             products: []
         })
         const newUser = await userModel.create({
@@ -46,7 +49,19 @@ export const init = () => {
 
     }));
     passport.use('login', new LocalStrategy({ usernameField: 'email' }, async (email, password, done) => {
-        const user = await userModel.findOne({ email });
+        if(email==="adminCoder@coder.com" && password==="adminCod3r123"){
+            const user={
+                _id: id,
+                first_Name: 'Admin',
+                last_Name:'Store',
+                email:email,
+                password:password,
+                age:26,
+                role:'admin',
+            }
+        done(null,user);
+        }else{
+            const user = await userModel.findOne({ email });
         if (!user) {
             return done(new Error('invalid email or password'));
         }
@@ -54,15 +69,32 @@ export const init = () => {
         if (!pass) {
             return done(new Error('invalid email or password'));
         }
+        
         done(null, user);
+        }
+        
 
     }));
     passport.serializeUser((user, done) => {
         done(null, user._id);
     });
     passport.deserializeUser(async (uid, done) => { // inflar sesion
+        if(uid===id){
+        const user={
+                _id: id,
+                first_Name: 'Admin',
+                last_Name:'Store',
+                email:"adminCoder@coder.com",
+                password:createHash("adminCod3r123"),
+                age:26,
+                role:'admin',
+        }
+        done(null,user);
+        }else{
         const user = await userModel.findById(uid);
         done(null, user);
+        }
+        
     });
     const githubOpts = {
         clientID:config.clientID,
@@ -76,7 +108,7 @@ export const init = () => {
             return done(null, user);
         }
         const newCart = await cartModel.create({
-            customer: profile._json.name,
+            customer:  profile._json.email || profile._json.name,
             products: []
         })
         user = {
@@ -85,7 +117,7 @@ export const init = () => {
             email: email || '',
             password: '',
             age: 23,
-            cart: newCart._id
+            cart: newCart._id,
         };
         const newUser = await userModel.create(user);
         done(null, newUser);

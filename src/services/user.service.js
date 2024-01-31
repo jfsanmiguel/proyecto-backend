@@ -2,24 +2,25 @@ import UserManager from "../dao/managersMongoDB/UserManager.js";
 import { userRepository } from "../repositories/index.js";
 export default class UserService{
     static getAll(filter = {}, opts={}){
-        return userRepository.getAll(filter,opts);
+        return UserManager.getAll(filter,opts);
     }
     static create(data){
-        return userRepository.createUser(data);
+        return UserManager.createUser(data);
     }
     static getOne(filter={}){
-        return userRepository.getOne(filter)
+        return UserManager.getOne(filter)
     }
 
     static async getById(id){
-        const result = userRepository.getAll({_id:id});
-        return result[0];
+        const result = UserManager.getAll({_id:id});
+        return result;
     }
     static async updateById(id,data){
-      return userRepository.updateUserById(id,data);
+      return UserManager.updateUserById(id,data);
+      
     }
     static async deleteById(id){
-        return userRepository.deleteById(id);
+        return UserManager.deleteById(id);
     }
     
 }

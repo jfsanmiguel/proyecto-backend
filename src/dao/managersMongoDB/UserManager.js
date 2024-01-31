@@ -4,7 +4,7 @@ import UserDTO from "../../dto/user.dto.js";
 export default class UserManager {
     static getAll(criteria={}){
         const users= userModel.find(criteria)
-        return users.map(user=> new UserDTO(user));
+        return users;
     }
     static getOne(criteria={}){
         return userModel.findOne(criteria)
@@ -12,8 +12,11 @@ export default class UserManager {
     static createUser(data){
         return userModel.create(data);
     }
+    
     static updateUserById(uid,data){
-        return userModel.updateOne({_id:uid}, {$set:data});
+        const criteria={_id:uid};
+        const operation={$set:data}
+        return userModel.updateOne(criteria,operation);
     }
     static deleteById(uid){
         return userModel.deleteOne({_id:uid});

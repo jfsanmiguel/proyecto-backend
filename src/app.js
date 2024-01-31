@@ -19,10 +19,13 @@ import config from './config/config.js';
 import apiRouter from './routes/api/app.router.js'
 import cors from 'cors';
 
+
 const SESSION_SECRET=config.session;
 // const whiteList= process.env.ORIGINS_ALLOWED.split(',');
 const app=express();
 //const fileStorage = FileStorage(session);
+
+
 
 app.use(session({
     store:MongoStore.create({

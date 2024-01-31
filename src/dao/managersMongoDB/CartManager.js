@@ -25,7 +25,7 @@ export default class CartsManager{
         if(!cart){
             console.log("the cart was not found")
         }else{
-            deletedProducts=[];
+            const deletedProducts=[];
             await CartModel.updateOne({_id:cid},{products:deletedProducts});
             console.log("products deleted");
         }

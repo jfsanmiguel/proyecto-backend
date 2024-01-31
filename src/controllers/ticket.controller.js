@@ -4,6 +4,8 @@ import UserService from "../services/user.service.js";
 import TicketService from "../services/tickets.service.js";
 import cartController from "./carts.controller.js";
 import userController from "./users.controller.js";
+import productController from "./products.controller.js";
+import ticketModel from "../dao/models/ticket.js";
 export default class TicketController {
     static async getAll(filters={}, opts={}) {
         const Tickets= TicketService.get(filters,opts);
@@ -13,31 +15,35 @@ export default class TicketController {
         return TicketService.getById(tid);
     }
     
-    static async createTicket(cid,data){
-        const{
-            products,
-            purchaser,
-            }=data;
-        const user= await userModel.findOne({email:purchaser});
-        const userCart= await cartController.populateProducts(cid);
-        const{products: productsIntoCart}=userCart;
-        const productsResult= productsIntoCart.filter(product=>products.includes(product.id))
-        const amount= productsResult.reduce((accumulator,product)=>{
-            accumulator+=product.price;
-            return accumulator;
-        },0);
-        const code=Date.now()+139;
-        const ticket= TicketService.create({
-        code:code,
-        products:productsResult.map(p=>p.id),
-        amount:amount,
-        purchaser:purchaser,
-        })
-        console.log('Ticket created successfully')
-        const {tickets}=user;
-        tickets.push(ticket);
-        userController.updatebyId(cid,tickets)
-        return ticket;
+    static async createTicket(cid){
+    const cartProducts= await cartController.getProductsFromCart(cid);
+    
+    const customer= await cartController.getCustomerFromCart(cid);
+    const purchasedProducts=[];
+    let total=0;
+    for(let i=0; i<cartProducts.length;i++){
+        let producti= await productController.getProductById(cartProducts[i].product.toString());
+        if(cartProducts[i].quantity<=producti.stock){
+            await productController.reduceProductStock(cartProducts[i].product.toString(),cartProducts[i].quantity);
+            purchasedProducts.push(producti);
+            total+=producti.price*cartProducts[i].quantity;
+            await cartController.deleteProductFromCart(cid,cartProducts[i].product.toString());
+            
+        }
+    }
+    const newTicket={
+        code:Date.now()+139,
+        products:purchasedProducts,
+        amount:total,
+        purchaser:customer
+    }
+    const ticket= await TicketService.create(newTicket);
+    const user= await userModel.findOne({email:customer});
+    await userController.addTicketToUser(user._id, ticket._id);
+
+    return ticket;
+    
+        
     }
     static async getById(id){
         const Ticket= await TicketService.getById(id);

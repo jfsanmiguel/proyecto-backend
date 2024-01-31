@@ -1,14 +1,14 @@
-<h1>Products</h1>
+
 <article>
     
 <header>
-    <h1>Welcome!</h1>
+    <h1>Shop ticket</h1>
 </header>
 <p><strong>First Name: </strong>{{user.first_Name}}</p>
 <p><strong>Last Name: </strong>{{user.last_Name}}</p>
 <p><strong>E-mail: </strong>{{user.email}}</p>
-
-
+<p><strong>Ticket Code: </strong>{{ticket.code}}</p>
+<p><strong>Amount: </strong>{{ticket.amount}}</p>
 
     </form>
 <table>
@@ -20,21 +20,17 @@
         <th>Code</th>
         <th>Stock</th>
         <th>Category</th>
-        <th>Buy</th>
     </tr>
     <tr>
-        
         {{#each products}}
-
             <tr>
-                <td>{{this.title}}</td>
-                <td>{{this.description}}</td>
-                <td>{{this.price}}</td>
-                <td>{{this.thumbnail}}</td>
-                <td>{{this.code}}</td>
-                <td>{{this.stock}}</td>
-                <td>{{this.category}}</td>
-                <td> <a href="/api/carts/{{user.cart}}/product/{{this._id}}" role="button" method="post"></a>Add to cart</td>
+                <td>{{product.title}}</td>
+                <td>{{product.description}}</td>
+                <td>{{product.price}}</td>
+                <td>{{product.thumbnail}}</td>
+                <td>{{product.code}}</td>
+                <td>{{product.stock}}</td>
+                <td>{{product.category}}</td>
             </tr>
         {{/each}}
     </tr>
@@ -42,5 +38,6 @@
 <footer>
 <a href="/api/session/logout"role="button">Log-out</a>
 <a href="/current"role="button">Go to cart</a>
+
 </footer>
 </article>

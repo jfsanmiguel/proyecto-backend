@@ -1,6 +1,7 @@
 import path from 'path';
 import bcrypt from 'bcrypt';
 import url from 'url';
+import {faker} from '@faker-js/faker';
 
 const __filename= url.fileURLToPath(import.meta.url);
 export const __dirname=path.dirname(__filename);
@@ -78,3 +79,17 @@ export class Forbidden extends Exception{
        super(message,403);
     }   
 }
+
+export const generateProduct=() =>{
+ return{
+    title: faker.commerce.productName(),
+    description: faker.lorem.paragraph(),
+    price:faker.commerce.price() ,
+    thumbnail: faker.image.url(),
+    code: faker.string.alphanumeric({length:2}),
+    status: true,
+    stock: faker.number.int({min:1, max:99}),
+    category: faker.commerce.department() ,
+ }
+};
+

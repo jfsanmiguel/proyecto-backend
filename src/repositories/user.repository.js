@@ -4,8 +4,8 @@ export default class UserRepository{
     constructor(dao){
         this.dao=dao;
     }
-    async getAll(filter={},opts={}) {
-       const users=this.dao.getAll(filter,opts);
+    async getAll() {
+       const users=this.dao.getAll();
        return users.map(contact=> new UserDTO(user));
     }
     async getOne(uid) {

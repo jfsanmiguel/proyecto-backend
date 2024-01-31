@@ -9,13 +9,13 @@ export default class ProductService{
     }
 
     static async getById(id){
-        const result = ProductsManager.getAll({_id:id});
-        return result[0];
+        const result = ProductsManager.getProductById(id);
+        return result;
     }
     static async updateById(id,data){
       return ProductsManager.updateProductById(id,data);
     }
     static async deleteById(id){
-        return ProductsManager.deleteById(id);
+        return ProductsManager.deleteProductById(id);
     }
 }

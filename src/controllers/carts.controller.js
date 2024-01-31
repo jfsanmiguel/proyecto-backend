@@ -1,3 +1,4 @@
+
 import CartModel from "../dao/models/cart.js";
 import ProductModel from "../dao/models/product.js";
 export default class cartController {
@@ -24,7 +25,7 @@ export default class cartController {
         if(!cart){
             throw new NotFound(" The cart was not found")
         }else{
-            deletedProducts=[];
+            const deletedProducts=[];
             await CartModel.updateOne({_id:cid},{products:deletedProducts});
             console.log("products deleted");
         }
@@ -46,6 +47,7 @@ export default class cartController {
             throw new NotFound(" The cart was not found")
         }else{
             const productIndex= cart.products.findIndex(prod => prod.product.toString() === pid);
+            const product=
             cart.products[productIndex].quantity=quantity;
             
                 await CartModel.updateOne({_id:cid},product);
@@ -60,22 +62,15 @@ export default class cartController {
             return cartId.products;
         }
     }
-    static async compareQuantityandStock(cid,pid){
-        const cart= await CartModel.findById(cid)
-        const product= await ProductModel.findById(pid);
-        if(!cart || !product){
-            throw new NotFound(" The cart or product was not found")
+    static async getCustomerFromCart(cid){
+        const cartId= await CartModel.findById(cid)
+        if(!cartId){
+            throw new NotFound(" The cart was not found")
         }else{
-            const productIndex= cart.products.findIndex(prod => prod.product.toString() === pid);
-            const diference= product.stock-cart.products[productIndex].quantity;
-            if(diference>=0){
-                return true
-            }else{
-                return false
-            }
-            
+            return cartId.customer;
         }
     }
+
 
     static async addProductsToCart(cid,pid,quantity){
         const cart= await CartModel.findById(cid);
@@ -105,9 +100,10 @@ export default class cartController {
         if(!cart){
             throw new NotFound(" The cart was not found")
         }else{
-            const productToDelete= cart.products.findIndex(prod=>prod.id===pid);
+            const productToDelete= cart.products.findIndex(prod=>prod.product.toString()===pid);
             if(productToDelete!==-1){
                 cart.products.splice(productToDelete,1);
+                await CartModel.updateOne({_id:cid},cart);
             }else{
                 throw new NotFound(" Product not found")
             }

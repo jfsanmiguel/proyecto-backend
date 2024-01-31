@@ -3,6 +3,7 @@ import cartController from "../../controllers/carts.controller.js";
 import TicketController from "../../controllers/ticket.controller.js";
 import { Router } from "express";
 import cartModel from "../../dao/models/cart.js";
+import { authMiddleware } from "../../utils.js";
 const router=Router();
 
 router.post('/carts',(req,res)=>{
@@ -39,7 +40,7 @@ router.post('/carts',(req,res)=>{
      }
      run();
  })
- router.post('/carts/:cid/product/:pid',(req,res)=>{
+ router.post('/carts/:cid/product/:pid',authMiddleware(['user']),(req,res)=>{
      const {cid,pid}=req.params;
      const body=req.body;
      async function buy(){
@@ -62,13 +63,13 @@ router.post('/carts',(req,res)=>{
      }
      buy();
  })
- router.put('/carts/:cid', async (req, res) => {
+ router.put('/carts/:cid',authMiddleware(['user']), async (req, res) => {
     const {cid}=req.params;
     const {body}= req;
     await cartController.updatedProductsfromCartById(cid,body);
     res.status(204).end();
    });
-   router.delete('/carts/:cid', async (req,res)=>{
+   router.delete('/carts/:cid',authMiddleware(['user']), async (req,res)=>{
     const {cid}=req.params;
     await cartController.deleteproductsfromCartById(cid);
     res.status(204).end();
@@ -78,7 +79,7 @@ router.post('/carts',(req,res)=>{
     await cartController.deleteProductFromCart(cid,pid);
     res.status(204).end();
    });
-   router.put('/carts/:cid/products/:pid', async (req, res) => {
+   router.put('/carts/:cid/products/:pid',authMiddleware(['user']), async (req, res) => {
     const {cid}=req.params;
     const {body}= req;
     await cartController.updateQuantityProductsfromCartById(cid,pid,body.quantity);
@@ -87,6 +88,7 @@ router.post('/carts',(req,res)=>{
    router.post('/carts/:cid/purchase', async (req,res)=>{
     const {cid}=req.params;
     await TicketController.createTicket(cid)
+    res.status(204).end;
    })
 
    
