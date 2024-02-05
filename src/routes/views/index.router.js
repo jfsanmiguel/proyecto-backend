@@ -4,31 +4,26 @@ import cartModel from "../../dao/models/cart.js";
 import userModel from "../../dao/models/user.js";
 import TicketController from "../../controllers/ticket.controller.js";
 import passport from "passport";
-import { authMiddleware } from "../../utils.js";
+import { authMiddleware,StrategyMiddleware } from "../../utils.js";
 import cartController from "../../controllers/carts.controller.js";
+
 
 
 const router = Router();
 
 router.get('/',(req,res)=>{
-    if(!req.session.counter){
-        req.session.counter=1;
-    }else{
-        req.session.counter++;
-    }
-    
-    res.render('index',{title:'Welcome to Fungstore', counter: req.session.counter});
+    res.render('index',{title:'Welcome to Fungstore'});
 });
 
 router.get('/products', async (req, res) => {
     const products= await PM.getProducts();
     res.render('products', { products: products.map(pro=>pro.toJSON()), title: 'Products list' })
 });
-router.get('/chat',authMiddleware(['user']),(req,res)=>{
+router.get('/chat',StrategyMiddleware('jwt'),authMiddleware('user'),(req,res)=>{
     res.render('chat', {title: 'customer chat'});
 })
 
-router.get('/profile', async (req, res) => {
+router.get('/profile',StrategyMiddleware('jwt'),async (req, res) => {
     if(!req.user){
         return res.redirect('/login')
     }else if(req.user.email==="adminCoder@coder.com"){
@@ -36,24 +31,24 @@ router.get('/profile', async (req, res) => {
         res.render('profile', { products: products.map(pro=>pro.toJSON()), title: 'Welcome back',user:req.user})  
     }else{
         const products= await PM.getProducts();
-        res.render('profile', { products: products.map(pro=>pro.toJSON()), title: 'Welcome back',user:req.user.toJSON()})
+        res.render('profile', { products: products.map(pro=>pro.toJSON()), title: 'Welcome back',user:req.user})
     }   
    
 });
-router.get('/current', async (req, res) => {
+router.get('/current',StrategyMiddleware('jwt'), async (req, res) => {
     if(!req.user){
         return res.redirect('/login')
     }else{
         const user= req.user;
-        const cart= await cartModel.findOne({_id:user.cart}).populate('tickets.ticket');
+        const cart= await cartModel.findOne({_id:user.cart}).populate('products.product');
         const cartId=user.cart;
-        const purchaseLink=document.getElementById("purchaseLink");
-        purchaseLink.href="/api/carts"+cartId+"/purchase;"
+        // const purchaseLink=document.getElementById("purchaseLink");
+        // purchaseLink.href="/api/carts"+cartId+"/purchase"
         if(!cart){
         const products= await PM.getProducts(); 
-        res.render('profile', { products: products.map(pro=>pro.toJSON()), title: 'Welcome back',user:req.user.toJSON() })
+        res.render('profile', { products: products.map(pro=>pro.toJSON()), title: 'Welcome back',user:user })
         }else{
-        res.render('current', { products: cart.products.map(pro=>pro.toJSON()), title: 'Your Cart',user:user.toJSON(),quantity:cart.quantity})
+        res.render('current', { products: cart.products.map(pro=>pro.toJSON()), title: 'Your Cart',user:user,quantity:cart.quantity})
         }
         
     }   
@@ -63,16 +58,15 @@ router.get('/purchase',async (req,res)=>{
         return res.redirect('/current')
     }else{
         const user= req.user;
-        const cart= await cartModel.findOne({_id:user.cart}).populate('tickets.ticket');
+        const cart= await cartModel.findOne({_id:user.cart}).populate('products.product');
         const cartId=user.cart;
         const ticket = await TicketController.createTicket(cartId)
-        user.tickets.push(ticket._id)
         
         if(!cart){
         const products= await PM.getProducts(); 
-        res.render('profile', { products: products.map(pro=>pro.toJSON()), title: 'Welcome back',user:req.user.toJSON() })
+        res.render('profile', { products: products.map(pro=>pro.toJSON()), title: 'Welcome back',user:req.user })
         }else{
-        res.render('ticket', {  products: ticket.products.map(pro=>pro.toJSON()), title: 'Your Ticket',user:user.toJSON(),amount:ticket.amount,code:ticket.code})
+        res.render('ticket', {  products: ticket.products.map(pro=>pro.toJSON()), title: 'Your Ticket',user:user,amount:ticket.amount,code:ticket.code})
         }
         
     }   

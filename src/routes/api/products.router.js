@@ -8,7 +8,7 @@ import { buildResponsePaginated } from "../../utils.js";
 import { URL_BASE } from "../../utils.js";
 import { generateProduct } from "../../utils.js";
 import passport from "passport";
-import { authMiddleware } from "../../utils.js";
+import { authMiddleware,StrategyMiddleware } from "../../utils.js";
 
 router.get('/products', (req, res,next) => {
     
@@ -43,7 +43,7 @@ router.get('/products', (req, res,next) => {
 
 });
 
-router.post('/products',authMiddleware(['admin']),(req, res,next) => {
+router.post('/products',StrategyMiddleware('jwt'),authMiddleware('admin'),(req, res,next) => {
    
     const { body } = req;
     try {
@@ -75,7 +75,7 @@ router.get('/products/:productId', (req, res) => {
     }
     run();
 });
-router.put('/products/:productId',authMiddleware(['admin']), (req, res) => {
+router.put('/products/:productId',StrategyMiddleware('jwt'),authMiddleware('admin'), (req, res) => {
     const { productId } = req.params;
     const { body } = req;
     async function update() {
@@ -136,7 +136,7 @@ router.put('/products/:productId',authMiddleware(['admin']), (req, res) => {
     }
     update();
 });
-router.delete('/products/:productId',authMiddleware(['admin']), (req, res) => {
+router.delete('/products/:productId',StrategyMiddleware('jwt'),authMiddleware('admin'), (req, res) => {
     const { productId } = req.params;
     async function run() {
         //const product = await productmanager.getProductById(parseInt(productId));

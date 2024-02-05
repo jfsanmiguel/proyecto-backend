@@ -2,11 +2,15 @@ import path from 'path';
 import bcrypt from 'bcrypt';
 import url from 'url';
 import {faker} from '@faker-js/faker';
+import JWT from 'jsonwebtoken';
+import passport from 'passport';
+import { error } from 'console';
 
 const __filename= url.fileURLToPath(import.meta.url);
 export const __dirname=path.dirname(__filename);
 export const URL_BASE='http://localhost:8080'
 export const URI= 'mongodb+srv://jfelipesanmiguel:jQDlAZ1jURl9fTsA@cluster0.9uvwrb0.mongodb.net/'
+export const JWT_SECRET='GfX}wql(f>bF+6=:;nR_hD6yL61';
 
 export const createHash = (password) => {
     const result = bcrypt.hashSync(password, bcrypt.genSaltSync(13));
@@ -37,12 +41,25 @@ export const buildResponsePaginated= (data)=>{
 
 }
 
-export const authMiddleware= roles=>(req,res,next)=>{
-    const {user}= req;
-    if(!user){
+export const StrategyMiddleware=(strategy)=>(req,res,next)=>{
+    passport.authenticate(strategy,{session:false},function (error,payload,info){
+        if(error){
+            return next(error);
+        }
+        if(!payload){
+            return res.status(401).json({message:info.message?info.message:info.toString()});
+        }
+        req.user=payload;
+        next();
+    })(req,res,next);
+
+};
+export const authMiddleware= role=>(req,res,next)=>{
+    if(!req.user){
         return res.status(401).json({message:'unauthorized'});
     }
-    if(!roles.include(user.role)){
+    const {role:userRole}=req.user;
+    if(userRole!==role){
         return res.status(403).json({message:'forbidden'});
     }
     next();
@@ -92,4 +109,29 @@ export const generateProduct=() =>{
     category: faker.commerce.department() ,
  }
 };
+
+export const generateToken= (user) =>{
+    const payload={
+        id: user._id,
+        first_Name:user.first_Name,
+        last_Name:user.last_Name,
+        email:user.email,
+        cart:user.cart,
+        role:user.role,
+        tickets:user.tickets,
+    }
+    return JWT.sign(payload,JWT_SECRET,{expiresIn:'1m'});
+};
+
+export const verifyToken= (token) =>{
+    return new Promise((resolve)=>{
+        JWT.verify(token,JWT_SECRET, (error,payload)=>{
+            if(error){
+                return resolve(false);
+            }
+            resolve(payload);
+        });
+    });
+    
+}
 

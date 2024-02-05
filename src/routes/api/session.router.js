@@ -2,7 +2,8 @@ import { Router } from "express";
 import passport from "passport";
 import userModel from '../../dao/models/user.js';
 import userController from "../../controllers/users.controller.js";
-import { createHash, isValidPassword } from "../../utils.js";
+import { StrategyMiddleware, authMiddleware, createHash, isValidPassword, verifyToken,generateToken } from "../../utils.js";
+import cookieParser from "cookie-parser";
 
 //http://localhost:8080/api/session/github/callback
 // client Iv1.5b323af19395be41 sensible
@@ -40,57 +41,57 @@ router.post('/session/register', passport.authenticate('register', { failureRedi
     res.redirect('/login');
 
 });
-router.post('/session/login', passport.authenticate('login', { failureRedirect: '/login' }), async (req, res) => {
+router.post('/session/login', async (req, res) => {
 
-    // const { body: { email, password },} = req;
-    // if ( !email ||!password){
-    //         //return res.status(400).json({ message: 'please fill all entries'})
-    //         return res.render('error',{title:'log error',messageError:'please fill all entries'});
-    //     }
-    //     const user= await userModel.findOne({ email });
-    //     if(!user){
-    //         //return res.status(401).json({ message: 'invalid email or password'})
-    //         return res.render('error',{title:'log error',messageError:'invalid email or password'});
-    //     }
-    //     const pass= isValidPassword(password,user)
-    //     if(!pass){
-    //         //return res.status(401).json({ message: 'invalid email or password'})
-    //         return res.render('error',{title:'log error',messageError:'invalid email or password'});
-    //     }
-    //     const {
-    //         first_Name,
-    //         last_Name, 
-    //     }=user;
-    //     req.session.user={
-    //         first_Name,
-    //         last_Name,
-    //         email,
-    //     }
-    //     //res.status(200).json({message: 'Welcome back'})
+    const { body: { email, password },} = req;
+    let user={}
+    if(email==="adminCoder@coder.com" && password==="adminCod3r123"){
+                user={
+                   _id: id,
+                     first_Name: 'Admin',
+                    last_Name:'Store',
+                    email:email,
+                    password:password,
+                    age:26,
+                    role:'admin',
+                }
+         }else{
+            user = await userModel.findOne({ email });
+           if (!user) {
+               return new Error('invalid email or password');
+            }
+            const pass = isValidPassword(password, user)
+            if (!pass) {
+                return new Error('invalid email or password');
+            }
+            
+    const token= generateToken(user);
+    res.cookie('token',token,{
+        maxAge:1000*60,
+        httpOnly:true,
+    })
     res.redirect('/profile')
-});
-router.get('/session/profile', (req, res) => {
-    if (!req.session.user) {
-        res.status(error.statusCode || 500).json({status:'error',message})
-    }
-    res.status(200).json(req.session.user)
+        }
 });
 
-router.get('/session/current', (req, res) => {
-    if (!req.session.user) {
+
+router.get('/session/profile',StrategyMiddleware('jwt'), (req, res) => {
+    if (!req.user) {
         res.status(error.statusCode || 500).json({status:'error',message})
     }
-    res.status(200).json(req.session.user)
+    res.status(200).send(req.user);
+});
+
+router.get('/session/current',StrategyMiddleware('jwt'),authMiddleware('user'),(req, res) => {
+    if (!req.user) {
+        res.status(error.statusCode || 500).json({status:'error',message})
+    }
+    res.status(200).send(req.user);
 });
 
 router.get('/session/logout', (req, res) => {
-    req.session.destroy((error) => {
-        if (error) {
-            return res.render('error', { title: 'log error', messageError: error.message });
-        }
-        res.redirect('/login');
-
-    });
+    res.clearCookie();
+    res.redirect('/login');
 });
 
 router.post('/session/password-recover', async (req, res) => {

@@ -18,6 +18,7 @@ import passport from 'passport';
 import config from './config/config.js';
 import apiRouter from './routes/api/app.router.js'
 import cors from 'cors';
+import cookieParser from 'cookie-parser';
 
 
 const SESSION_SECRET=config.session;
@@ -27,16 +28,7 @@ const app=express();
 
 
 
-app.use(session({
-    store:MongoStore.create({
-        mongoUrl: URI,
-        mongoOptions: {},
-        ttl: 3600,
-    })   ,//new fileStorage({path:path.join(__dirname,'sessions'),ttl: 100, retries:0}),firsestore
-    secret: SESSION_SECRET,
-    resave: true,
-    saveUninitialized: true,
-}));
+app.use(cookieParser());
 app.use(express.json());
 app.use(express.urlencoded({ extended:true }));
 app.use(express.static(path.join(__dirname,'../public')));
@@ -45,7 +37,6 @@ app.set('views',path.join(__dirname,'views'));
 app.set('view engine','handlebars');
 initPassport();
 app.use(passport.initialize());
-app.use(passport.session());
 // app.use(cors({
 //     origin: (origin,callback)=>{
 //         if(whiteList.includes(origin)){
