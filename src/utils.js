@@ -118,7 +118,6 @@ export const generateToken= (user) =>{
         email:user.email,
         cart:user.cart,
         role:user.role,
-        tickets:user.tickets,
     }
     return JWT.sign(payload,JWT_SECRET,{expiresIn:'1m'});
 };
