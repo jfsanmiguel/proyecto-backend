@@ -12,4 +12,6 @@ export default {
     callbackURL: process.env.callbackURL || '',
     persistence: process.env.PERSISTENCE || 'mongodb',
     jwt: process.env.JWT_SECRET || '',
+    env: process.env.NODE_ENV || 'development',
+
 }

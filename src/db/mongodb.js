@@ -1,13 +1,14 @@
 import config from "../config/config.js";
 import mongoose from "mongoose";
+import { logger } from "../config/logger.js";
 
 const URI= config.mongodbURI;
 export const init= async ()=>{
     try{
         await mongoose.connect(URI)
-        console.log('Database connected succesfully')
+        logger.info('Database connected succesfully')
     }catch(error){
-        console.error('An unexpected error ocurred')
-        console.log(URI)
+        logger.error('An unexpected error ocurred')
+        logger.info(URI)
     }
 }

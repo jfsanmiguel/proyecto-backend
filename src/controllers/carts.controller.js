@@ -1,13 +1,14 @@
 
 import CartModel from "../dao/models/cart.js";
 import ProductModel from "../dao/models/product.js";
+import { logger } from "../config/logger.js";
 export default class cartController {
     static getCarts(){
         return CartModel.find({});
     }
     static async createCart(data){
         const cart= await CartModel.create(data);
-        console.log('New cart created successfully');
+        logger.info('New cart created successfully')
         return cart;
     }
     static async updateCartById(cid,data){
@@ -16,7 +17,7 @@ export default class cartController {
             throw new NotFound(" The cart was not found")
         }else{
             await CartModel.updateOne({_id:cid},{$set:data});
-            console.log('cart updated succesfully')
+            logger.info('cart updated successfully')
         }
         
     }
@@ -27,7 +28,7 @@ export default class cartController {
         }else{
             const deletedProducts=[];
             await CartModel.updateOne({_id:cid},{products:deletedProducts});
-            console.log("products deleted");
+            logger.info('products deleted');
         }
     }
     static async updatedProductsfromCartById(cid,data){
@@ -38,7 +39,7 @@ export default class cartController {
             cart.products=data;
             const updatedProducts=cart.products;
             await CartModel.updateOne({_id:cid},{products:updatedProducts});
-            console.log("products updated");
+            logger.info('products updated');
         }
     }
     static async updateQuantityProductsfromCartById(cid, pid,quantity){
@@ -85,7 +86,7 @@ export default class cartController {
                 }
                 cart.products.push(newProduct);
                 await CartModel.updateOne({_id:cid},cart);
-                console.log('product added successfully');
+                logger.info('products added successfully')
             }else{
                 productExists.quantity=productExists.quantity+quantity;
                 

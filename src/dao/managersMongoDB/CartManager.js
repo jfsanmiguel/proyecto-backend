@@ -1,50 +1,50 @@
 import CartModel from '../models/cart.js'
 import ProductModel from "../models/product.js";
-
+import { logger } from '../../config/logger.js';
 export default class CartsManager{
     static getCarts(filter={}){
         return CartModel.find(filter);
     }
     static async createCart(data){
         const cart= await CartModel.create(data);
-        console.log('New cart created successfully');
+        logger.info('New cart created successfully')
         return cart;
     }
     static async updateCartById(cid,data){
         const cart= await CartModel.findById(cid);
         if(!cart){
-        console.log('the cart was not found')
+        logger.warning('the cart was not found')
         }else{
             await CartModel.updateOne({_id:cid},{$set:data});
-            console.log('cart updated succesfully')
+            logger.info('cart updated succesfully')
         }
         
     }
     static async deleteproductsfromCartById(cid){
         const cart= await CartModel.findById(cid);
         if(!cart){
-            console.log("the cart was not found")
+            logger.warning('the cart was not found')
         }else{
             const deletedProducts=[];
             await CartModel.updateOne({_id:cid},{products:deletedProducts});
-            console.log("products deleted");
+            logger.info('products deleted')
         }
     }
     static async updatedProductsfromCartById(cid,data){
         const cart= await CartModel.findById(cid);
         if(!cart){
-            console.log("the cart was not found")
+            logger.warning('the cart was not found')
         }else{
             cart.products=data;
             const updatedProducts=cart.products;
             await CartModel.updateOne({_id:cid},{products:updatedProducts});
-            console.log("products updated");
+            logger.info('products updated')
         }
     }
     static async updateQuantityProductsfromCartById(cid, pid,quantity){
         const cart= await CartModel.findById(cid);
         if(!cart){
-            console.log("the cart was not found")
+            logger.warning('the cart was not found')
         }else{
             const productIndex= cart.products.findIndex(prod => prod.product.toString() === pid);
             cart.products[productIndex].quantity=quantity;
@@ -56,7 +56,7 @@ export default class CartsManager{
     static async getProductsFromCart(cid){
         const cartId= await CartModel.findById(cid)
         if(!cartId){
-            console.log("cart not found")
+            logger.warning('the cart was not found')
         }else{
             return cartId.products;
         }
@@ -65,7 +65,7 @@ export default class CartsManager{
     static async addProductsToCart(cid,pid,quantity){
         const cart= await CartModel.findById(cid);
         if(!cart){
-            console.log("the cart was not found")
+            logger.warning('the cart was not found')
         }else{
             const productExists= cart.products.find(prod=>prod.product===pid);
             if(!productExists){
@@ -75,7 +75,7 @@ export default class CartsManager{
                 }
                 cart.products.push(newProduct);
                 await CartModel.updateOne({_id:cid},cart);
-                console.log('product added successfully');
+                logger.info('product added successfully')
             }else{
                 productExists.quantity=productExists.quantity+quantity;
                 
@@ -88,13 +88,13 @@ export default class CartsManager{
     static async deleteProductFromCart(cid,pid){
         const cart= await CartModel.findById(cid);
         if(!cart){
-            console.log("the cart was not found")
+            logger.warning('the cart was not found')
         }else{
             const productToDelete= cart.products.findIndex(prod=>prod.id===pid);
             if(productToDelete!==-1){
                 cart.products.splice(productToDelete,1);
             }else{
-                console.log('Product not found')
+                logger.warning('Product not found')
             }
 
     }

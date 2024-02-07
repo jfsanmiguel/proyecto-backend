@@ -1,5 +1,6 @@
 import userModel from "../dao/models/user.js";
 import UserService from "../services/user.service.js";
+import { logger } from "../config/logger.js";
 export default class userController {
     static async getAll(filters={}, opts={}) {
         const users= UserService.getAll(filters,opts);
@@ -37,7 +38,7 @@ export default class userController {
                 }
                 user.tickets.push(newTicket);
                 await userModel.updateOne({_id:uid},user);
-                console.log('ticket added successfully');
+                logger.info('ticket added successfully');
             }
         }
        

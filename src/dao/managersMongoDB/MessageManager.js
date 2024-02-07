@@ -1,4 +1,5 @@
 import MessageModel from '../models/message.js'
+import { logger } from '../../config/logger.js';
 
 export default class MessageManager{
     static getMessages(){
@@ -13,16 +14,16 @@ export default class MessageManager{
     }
     static async sendMessage(data){
         const message= await MessageModel.create(data);
-        console.log('New message created successfully');
+        logger.info('New message created successfully')
         return message;
     }
     static async updateMessage(mid,data){
         await MessageModel.updateOne({_id:mid},{$set: data});
-        console.log('message updated successfully');
+        logger.info('Message updated successfully');
     }
     static async deleteMessage(mid){
         await MessageModel.deleteOne({_id:uid});
-        console.log('message deleted successfully');
+        logger.info('Message deleted successfully');
     }
   
 }
