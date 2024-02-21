@@ -10,6 +10,7 @@ import { generateProduct } from "../../utils.js";
 import passport from "passport";
 import { authMiddleware,StrategyMiddleware } from "../../utils.js";
 
+
 router.get('/products', (req, res,next) => {
     
     // sort linked with price
@@ -43,14 +44,18 @@ router.get('/products', (req, res,next) => {
 
 });
 
-router.post('/products',StrategyMiddleware('jwt'),authMiddleware('admin'),(req, res,next) => {
+router.post('/products',StrategyMiddleware('jwt'),authMiddleware(['admin','premium']),(req, res,next) => {
    
     const { body } = req;
+    const {user}= req.user;
     try {
         async function add() {
             //await productmanager.addProduct(body.title, body.description, body.price, body.thumbnail, body.code, body.stock, body.category);
             //const products = await productmanager.getProducts();
             const products= await productController.addProduct(body);
+            if(user.role==="premium"){
+                await productController.updateOwner(products._id,user.email);
+            }
             res.status(201).json(products);
         }
         add();
@@ -75,7 +80,7 @@ router.get('/products/:productId', (req, res) => {
     }
     run();
 });
-router.put('/products/:productId',StrategyMiddleware('jwt'),authMiddleware('admin'), (req, res) => {
+router.put('/products/:productId',StrategyMiddleware('jwt'),authMiddleware(['admin']), (req, res) => {
     const { productId } = req.params;
     const { body } = req;
     async function update() {
@@ -136,18 +141,27 @@ router.put('/products/:productId',StrategyMiddleware('jwt'),authMiddleware('admi
     }
     update();
 });
-router.delete('/products/:productId',StrategyMiddleware('jwt'),authMiddleware('admin'), (req, res) => {
+router.delete('/products/:productId',StrategyMiddleware('jwt'),authMiddleware(['admin','premium']), (req, res) => {
     const { productId } = req.params;
+    const {user}= req.user;
     async function run() {
         //const product = await productmanager.getProductById(parseInt(productId));
         const product= await productController.getProductById(productId)
         if (!product) {
             res.status(error.statusCode || 500).json({status:'error',message})
-        } else {
+        } else if(user.role==="premium" && product.owner===user.email){
             //await productmanager.deleteProduct(parseInt(productId));
             //res.status(200).json({message:'the following product was deleted',productId});
             await productController.deleteProductById(productId);
             res.status(204).end();
+        } else if(user.role==="premium" && product.owner!==user.email){
+            req.logger.error('error cannot delete product')
+        }else if(user.role==="admin"){
+            await productController.deleteProductById(productId);
+            res.status(204).end();
+
+        }else{
+            req.logger.error('error cannot delete product')
         }
     }
     run();

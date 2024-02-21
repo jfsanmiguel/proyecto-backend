@@ -4,6 +4,8 @@ import userModel from '../../dao/models/user.js';
 import userController from "../../controllers/users.controller.js";
 import { StrategyMiddleware, authMiddleware, createHash, isValidPassword, verifyToken,generateToken } from "../../utils.js";
 import cookieParser from "cookie-parser";
+import EmailService from "../../services/email.service.js";
+import user from "../../dao/models/user.js";
 
 //http://localhost:8080/api/session/github/callback
 // client Iv1.5b323af19395be41 sensible
@@ -38,13 +40,13 @@ router.post('/session/register', passport.authenticate('register', { failureRedi
 
 
     //res.status(201).json(user);
-    res.redirect('/login');
+    res.redirect('/');
 
 });
 router.post('/session/login', async (req, res) => {
 
     const { body: { email, password },} = req;
-    let user={}
+    let user={};
     if(email==="adminCoder@coder.com" && password==="adminCod3r123"){
                 user={
                    _id: id,
@@ -82,7 +84,7 @@ router.get('/session/profile',StrategyMiddleware('jwt'), (req, res) => {
     res.status(200).send(req.user);
 });
 
-router.get('/session/current',StrategyMiddleware('jwt'),authMiddleware('user'),(req, res) => {
+router.get('/session/current',StrategyMiddleware('jwt'),authMiddleware(['user']),(req, res) => {
     if (!req.user) {
         res.status(error.statusCode || 500).json({status:'error',message})
     }
@@ -94,16 +96,35 @@ router.get('/session/logout', (req, res) => {
     res.redirect('/login');
 });
 
+router.post('/session/password-change', async (req, res) => {
+    const { body: { email }, } = req;
+    const user = await userModel.findOne({ email: email });
+    if (!user) {
+        return new Error('invalid email or password');
+     }
+    const token= generateToken(user,"password-change");
+    const link= `http://localhost:8080/password-recover/?token=${token}`;
+    const emailService= EmailService.getInstance();
+    emailService.sendPassRecover(user,link);
+    req.logger.info('email sent');
+    res.redirect('/login');
+});
+
 router.post('/session/password-recover', async (req, res) => {
-    const { body: { email, password }, } = req;
-    if (!email || !password) {
+    const { body: { password }, } = req;
+    const {token}= req.query;
+    const info= await verifyToken(token);
+    const user= await userModel.findOne({ email: info.email });
+    if (!password) {
         //return res.status(400).json({ message: 'please fill all entries'})
         return res.render('error', { title: 'log error', messageError: 'please fill all entries' });
     }
-    const user = await userController.getAll({email})
     if (!user) {
         //return res.status(401).json({ message: 'invalid email or password'})
-        return res.render('error', { title: 'log error', messageError: 'invalid email or password' });
+        return res.render('error', { title: 'log error', messageError: 'Password change failed' });
+    }
+    if(isValidPassword(password,user)){
+        return res.render('error', { title: 'log error', messageError: 'Cannot use the same password as before' });
     }
     user.password = createHash(password);
     await userController.updatebyId(user._id,user);

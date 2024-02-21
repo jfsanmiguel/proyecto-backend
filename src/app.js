@@ -4,6 +4,7 @@ import handlebars from 'express-handlebars';
 import productRouter from './routes/api/products.router.js'
 import cartRouter from './routes/api/carts.router.js'
 import loggerTest from './routes/api/app.router.js';
+import userRouter from './routes/api/user.router.js'
 import {Exception, __dirname} from './utils.js';
 import appRouter from './routes/views/app.router.js';
 import indexRouter from './routes/views/index.router.js';
@@ -62,6 +63,6 @@ app.use((error,req,res,next)=>{
 
 });
 
-app.use('/api',productRouter,cartRouter,sessionRouter,apiRouter);
+app.use('/api',productRouter,cartRouter,sessionRouter,apiRouter,userRouter);
 
 export default app;

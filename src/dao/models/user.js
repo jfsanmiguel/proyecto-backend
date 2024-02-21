@@ -10,7 +10,7 @@ const userSchema= new Schema({
     password:{type:String,required:false},
     age:{type:Number,required:false},
     cart:{type:mongoose.Schema.Types.ObjectId, ref:'carts'},
-    role:{type:String, required: false, default:'user', enum:['user','operator','admin'] },
+    role:{type:String, required: false, default:'user', enum:['user','operator','admin','premium'] },
     tickets:{type: [TicketCollection],default:[]}
 },{timestamps:true})
 

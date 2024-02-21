@@ -40,9 +40,10 @@ router.post('/carts',(req,res)=>{
      }
      run();
  })
- router.post('/carts/:cid/product/:pid',StrategyMiddleware('jwt'),authMiddleware('user'),(req,res)=>{
+ router.post('/carts/:cid/product/:pid',StrategyMiddleware('jwt'),authMiddleware(['user','premium']),(req,res)=>{
      const {cid,pid}=req.params;
      const body=req.body;
+     const {user}= req.user;
      async function buy(){
          //const product= await productmanager.getProductById(parseInt(pid));
          //const cart= await cartsmanager.getProductsFromCart(parseInt(cid));
@@ -53,6 +54,8 @@ router.post('/carts',(req,res)=>{
          }else{
              if(!cart){
                 res.status(error.statusCode || 500).json({status:'error',message})
+             }else if(user.role==="premium" && product.owner!==user.email){
+                req.logger.error('error cannot add products of the same owner as cart')
              }else{
                  //await cartsmanager.addProductsToCart(parseInt(cid), parseInt(pid) ,body.quantity);
                  await cartController.addProductsToCart(cid,pid,body.quantity);
@@ -63,13 +66,13 @@ router.post('/carts',(req,res)=>{
      }
      buy();
  })
- router.put('/carts/:cid',StrategyMiddleware('jwt'),authMiddleware('user'), async (req, res) => {
+ router.put('/carts/:cid',StrategyMiddleware('jwt'),authMiddleware(['user','premium']), async (req, res) => {
     const {cid}=req.params;
     const {body}= req;
     await cartController.updatedProductsfromCartById(cid,body);
     res.status(204).end();
    });
-   router.delete('/carts/:cid',StrategyMiddleware('jwt'),authMiddleware('user'), async (req,res)=>{
+   router.delete('/carts/:cid',StrategyMiddleware('jwt'),authMiddleware(['user','premium']), async (req,res)=>{
     const {cid}=req.params;
     await cartController.deleteproductsfromCartById(cid);
     res.status(204).end();
@@ -79,7 +82,7 @@ router.post('/carts',(req,res)=>{
     await cartController.deleteProductFromCart(cid,pid);
     res.status(204).end();
    });
-   router.put('/carts/:cid/products/:pid',StrategyMiddleware('jwt'),authMiddleware('user'), async (req, res) => {
+   router.put('/carts/:cid/products/:pid',StrategyMiddleware('jwt'),authMiddleware(['user','premium']), async (req, res) => {
     const {cid}=req.params;
     const {body}= req;
     await cartController.updateQuantityProductsfromCartById(cid,pid,body.quantity);

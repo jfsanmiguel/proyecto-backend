@@ -4,7 +4,7 @@ import cartModel from "../../dao/models/cart.js";
 import userModel from "../../dao/models/user.js";
 import TicketController from "../../controllers/ticket.controller.js";
 import passport from "passport";
-import { authMiddleware,StrategyMiddleware } from "../../utils.js";
+import { authMiddleware,StrategyMiddleware, verifyToken } from "../../utils.js";
 import cartController from "../../controllers/carts.controller.js";
 
 
@@ -80,8 +80,19 @@ router.get('/register', async (req, res) => {
     res.render('register', {  title: 'Register' })
 });
 
-router.get('/password-recover',(req,res)=>{
-    res.render('recover', {title: 'Recover password'});
+router.get('/password-recover',async (req,res)=>{
+    const {token}= req.query;
+    verifyToken(token)
+    .then((userT)=>{
+        res.render('recover', {token, title: 'Recover password'});
+    }).catch((error)=>{
+        return res.redirect('/login')
+    })
+   
+
+})
+router.get('/password-change',(req,res)=>{
+    res.render('forgot',{title: 'Change Password'});
 
 })
 

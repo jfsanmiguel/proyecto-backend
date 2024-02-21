@@ -43,4 +43,14 @@ export default class userController {
         }
        
     }
+    static async upgradePremium(uid){
+        const user= await userModel.findById(uid);
+        if (!user) {
+            logger.error('User not found');
+        } else if(user.role==="user") {
+            await userModel.updateOne({_id:uid},{role:"premium"});
+        }else{
+            await userModel.updateOne({_id:uid},{role:"user"});
+        }
+    }
 }

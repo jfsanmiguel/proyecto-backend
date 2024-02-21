@@ -7,7 +7,6 @@ export default class CartsService{
     static create(data){
         return CartsManager.createCart(data);
     }
-
     static async getById(id){
         const result = CartsManager.getCarts({_id:id});
         return result;

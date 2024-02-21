@@ -1,4 +1,5 @@
 import ProductModel from '../models/product.js';
+import { logger } from '../../config/logger.js';
 
 export default class ProductsManager{
     static getProducts(filter ={}){

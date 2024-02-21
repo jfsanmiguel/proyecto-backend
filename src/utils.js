@@ -54,17 +54,30 @@ export const StrategyMiddleware=(strategy)=>(req,res,next)=>{
     })(req,res,next);
 
 };
-export const authMiddleware= role=>(req,res,next)=>{
-    if(!req.user){
-        return res.status(401).json({message:'unauthorized'});
-    }
-    const {role:userRole}=req.user;
-    if(userRole!==role){
-        return res.status(403).json({message:'forbidden'});
-    }
-    next();
+export const authMiddleware= roles=>(req,res,next)=>{
+   const {user}=req;
+   if(!user) {
+    return next(new Unauthorized('Unauthorized'));
+   }
+   if(!roles.includes(user.role)){
+    return next(new Unauthorized('Forbidden'));
+   }
+   next();
 
 };
+
+export const authToken= async (req,res,next)=>{
+    const accessToken= req.cookies['access_token'];
+    if(!accessToken){
+        return next(new Unauthorized('Unauthorized'));
+    }
+    const payload=await verifyToken(accessToken);
+ if(payload.type!=='authentication'){
+    return next(new Unauthorized('Unauthorized'));
+ }
+    req.user=payload;
+    next();
+}
 
 
 export class Exception extends Error{
@@ -110,7 +123,7 @@ export const generateProduct=() =>{
  }
 };
 
-export const generateToken= (user) =>{
+export const generateToken= (user,type='authentication') =>{
     const payload={
         id: user._id,
         first_Name:user.first_Name,
@@ -118,8 +131,9 @@ export const generateToken= (user) =>{
         email:user.email,
         cart:user.cart,
         role:user.role,
+        type,
     }
-    return JWT.sign(payload,JWT_SECRET,{expiresIn:'1m'});
+    return JWT.sign(payload,JWT_SECRET,{expiresIn:'1h'});
 };
 
 export const verifyToken= (token) =>{
