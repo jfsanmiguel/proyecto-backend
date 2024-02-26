@@ -1,0 +1,11 @@
+paths:
+  /api/products:
+    get:
+      summary: returns product list
+      tags:
+        - Products
+      responses:
+        200:
+          descripion: products obtained from database.
+        500:
+          description: Server internal error.

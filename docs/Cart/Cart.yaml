@@ -1,0 +1,11 @@
+paths:
+  /api/carts:
+    get:
+      summary: returns carts list
+      tags:
+        - Cart
+      responses:
+        200:
+          descripion: Carts obtained from database.
+        500:
+          description: Server internal error.

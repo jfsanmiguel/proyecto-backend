@@ -23,6 +23,8 @@ import cors from 'cors';
 import cookieParser from 'cookie-parser';
 import { addLogger } from './config/logger.js';
 import { logger } from './config/logger.js';
+import swaggerJSDoc from 'swagger-jsdoc';
+import swaggerUiExpress from 'swagger-ui-express';
 
 
 const SESSION_SECRET=config.session;
@@ -53,6 +55,18 @@ app.use(passport.initialize());
 //     }
 // }));
 
+const swaggerOpts={
+    definition: {
+        openapi: '3.0.0',
+        info: {
+            title: 'Fungstore API',
+            description: 'This is the Fungstore API documentation. An e-commerce app.',
+        },
+    },
+    apis: [path.join(__dirname,'..', 'docs',  '**', '*.yaml')],
+};
+const specs = swaggerJSDoc(swaggerOpts);
+app.use('/api-docs',swaggerUiExpress.serve,swaggerUiExpress.setup(specs));
 
 app.use('/', indexRouter,productR, cartR,loggerTest);
 
