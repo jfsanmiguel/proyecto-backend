@@ -13,7 +13,7 @@ import user from "../../dao/models/user.js";
 
 const router = Router();
 
-router.post('/session/register', passport.authenticate('register', { failureRedirect: '/register' }), async (req, res) => {
+router.post('/session/register', passport.authenticate('register', { failureRedirect: '/register',session:false }), async (req, res) => {
     //     const {
     //         body: {
     //             first_Name,
