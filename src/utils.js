@@ -5,12 +5,13 @@ import {faker} from '@faker-js/faker';
 import JWT from 'jsonwebtoken';
 import passport from 'passport';
 import { error } from 'console';
+import config from "./config/config.js"
 
 const __filename= url.fileURLToPath(import.meta.url);
 export const __dirname=path.dirname(__filename);
 export const URL_BASE='http://localhost:8080'
-export const URI= 'mongodb+srv://jfelipesanmiguel:jQDlAZ1jURl9fTsA@cluster0.9uvwrb0.mongodb.net/'
-export const JWT_SECRET='GfX}wql(f>bF+6=:;nR_hD6yL61';
+export const URI= config.mongodbURI;
+export const JWT_SECRET=config.jwt;
 
 export const createHash = (password) => {
     const result = bcrypt.hashSync(password, bcrypt.genSaltSync(13));
