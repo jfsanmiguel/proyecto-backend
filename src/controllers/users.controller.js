@@ -53,4 +53,17 @@ export default class userController {
             await userModel.updateOne({_id:uid},{role:"user"});
         }
     }
+    static async uploadFile(uid,typeFile,file){
+        const data={};
+        if(typeFile==='profiles'){
+        Object.assign(data,{name: file.filename, reference:`http://localhost:8080/images/profiles/${file.filename}` });
+        }else if(typeFile==='products'){
+        Object.assign(data,{name: file.filename, reference:`http://localhost:8080/images/products/${file.filename}`});
+        }else{
+            Object.assign(data,{name: file.filename, reference: `http://localhost:8080/documents/${file.filename}`});
+        }
+        const user= await userModel.findById(uid);
+        user.documents.push(data);
+        return UserService.updateById(uid,user);
+    }
 }
